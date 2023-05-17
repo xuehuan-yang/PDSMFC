@@ -245,7 +245,7 @@ if __name__ == "__main__":
     ct_prime, transformtime = ME.transform(pp, at, ct)
     msg2 = ME.decrpt_second_level(pp, ct, ct_prime, sk56)
     # output_txt= output_func('pdsmfc')
-    output_txt= "PDSMFC.txt"
+    output_txt= "pdsmfc.txt"
 
     with open(output_txt, 'w+', encoding='utf-8') as f:
         f.write("Seq SetupTime          EncTime            KeyGenTime         DecTime  " + '\n')
