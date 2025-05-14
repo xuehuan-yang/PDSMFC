@@ -6,6 +6,9 @@ import pickle
 import base64
 import time
 import sys
+import random
+import string
+import configparser
 
 sys.path.append('../')
 from common.parse import *
@@ -214,13 +217,24 @@ class PDSMFC():
         msg2 = bytes([a ^ b for (a, b) in zip(ct_prime['c0_prime'], temp)])
         return msg2
 
+def generate_random_bytes_string(m=30):
+    random_str = ''.join(random.choices(string.ascii_letters + string.digits, k=m))
+    return random_str.encode('utf-8')
+
 
 if __name__ == "__main__":
     from charm.toolbox.pairinggroup import PairingGroup
 
     group = PairingGroup('SS512', secparam=512)
     ME = PDSMFC(group)
-    n = 30
+
+    config = configparser.ConfigParser()
+    config.read('config.ini')
+
+    n = int(config['parameters'].get('n', 30))
+    m = int(config['parameters'].get('m', 30))
+
+    # n = 30
     R = 'attribute 1, attribute 2'
     S = 'attribute 3, attribute 4'
     T = 'attribute 5, attribute 6'
@@ -234,7 +248,8 @@ if __name__ == "__main__":
     pp, msk, setuptime = ME.setup(n)
     ek, sk, sk56, sk78, sk910, skgentime = ME.skgen_function(msk, id1, id2, id3, id4, id5)
 
-    M = b"helloworld"
+    M = generate_random_bytes_string(m)
+
     ct, enctime = ME.encrypt(pp, msk, R, ek, M)
 
     msg1 = ME.decrypt_orignial(ct, sk)
@@ -255,7 +270,8 @@ if __name__ == "__main__":
             pp, msk, setuptime = ME.setup(n)
             ek, sk, sk56, sk78, sk910, skgentime = ME.skgen_function(msk, id1, id2, id3, id4, id5)
 
-            M = b"helloworld"
+            M = generate_random_bytes_string(m)
+
             ct, enctime = ME.encrypt(pp, msk, R, ek, M)
             at, authorizetime = ME.authorize(pp, sk, sk56, msk, id3, id4)
             ct_prime, transformtime = ME.transform(pp, at, ct)
